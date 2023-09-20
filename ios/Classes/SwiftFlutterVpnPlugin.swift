@@ -27,6 +27,7 @@ public class SwiftFlutterVpnPlugin: NSObject, FlutterPlugin {
 
     channel.setMethodCallHandler {
       (call: FlutterMethodCall, result: FlutterResult) -> Void in
+
       if call.method == "connect" {
         let args = call.arguments! as! [NSString: NSString]
         VpnService.shared.connect(
@@ -38,7 +39,18 @@ public class SwiftFlutterVpnPlugin: NSObject, FlutterPlugin {
           secret: args["Secret"] as? String,
           description: args["Name"] as? String
         )
-      } else if call.method == "reconnect" {
+      } else  if call.method == "connect_psk" {
+                     let args = call.arguments! as! [NSString: NSString]
+                     VpnService.shared.connectIkev2Psk(
+                       result: result,
+                       type: (args["Type"] as? String ?? "IKEv2"),
+                       server: args["Server"]! as String,
+                       remoteId: args["RemoteId"]! as String,
+                       localId: args["LocalId"]! as String,
+                       secret: args["Secret"]! as String,
+                       description: args["Name"] as? String
+                     )
+                   } else if call.method == "reconnect" {
         VpnService.shared.reconnect(result: result)
       } else if call.method == "disconnect" {
         VpnService.shared.disconnect(result: result)

@@ -32,8 +32,9 @@ class MethodChannelFlutterVpn extends FlutterVpnPlatform {
   /// Can only be listened once. If have more than one subscription, only the
   /// last subscription can receive events.
   @override
-  Stream<FlutterVpnState> get onStateChanged =>
-      eventChannel.receiveBroadcastStream().map((e) => FlutterVpnState.values[e]);
+  Stream<FlutterVpnState> get onStateChanged => eventChannel
+      .receiveBroadcastStream()
+      .map((e) => FlutterVpnState.values[e]);
 
   /// Get current state.
   @override
@@ -103,6 +104,23 @@ class MethodChannelFlutterVpn extends FlutterVpnPlatform {
         'Name': name ?? server,
         if (mtu != null) 'mtu': mtu,
         if (port != null) 'port': port,
+      });
+
+  @override
+  Future<void> connectIkev2PSK({
+    required String server,
+    required String remoteId,
+    required String localId,
+    required String secret,
+    String? name,
+  }) async =>
+      await methodChannel.invokeMethod('connect_psk', {
+        'Type': 'IKEv2',
+        'Server': server,
+        'RemoteId': remoteId,
+        'LocalId': localId,
+        'Secret': secret,
+        'Name': name ?? server,
       });
 
   /// Connect to VPN. (IPSec)

@@ -90,4 +90,13 @@ abstract class FlutterVpnPlatform extends PlatformInterface {
     int? port,
   }) async =>
       throw UnimplementedError();
+
+  Future<void> connectIkev2PSK({
+    required String server,
+    required String remoteId,
+    required String localId,
+    required String secret,
+    String? name,
+  }) async =>
+      throw UnimplementedError();
 }

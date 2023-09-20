@@ -23,9 +23,10 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final _addressController = TextEditingController();
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _addressController = TextEditingController(text: '');
+  final _remoteIdController = TextEditingController(text: '');
+  final _localIdController = TextEditingController(text: '');
+  final _secretController = TextEditingController(text: '');
 
   var state = FlutterVpnState.disconnected;
   CharonErrorState? charonState = CharonErrorState.NO_ERROR;
@@ -51,25 +52,40 @@ class _MyAppState extends State<MyApp> {
             Text('Current Charon State: $charonState'),
             TextFormField(
               controller: _addressController,
-              decoration: const InputDecoration(icon: Icon(Icons.map_outlined)),
-            ),
-            TextFormField(
-              controller: _usernameController,
               decoration: const InputDecoration(
-                icon: Icon(Icons.person_outline),
+                hintText: 'Server Address',
               ),
             ),
+            const SizedBox(height: 10),
             TextFormField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(icon: Icon(Icons.lock_outline)),
+              controller: _remoteIdController,
+              decoration: const InputDecoration(
+                hintText: 'Remote Id',
+              ),
             ),
+            const SizedBox(height: 10),
+            TextFormField(
+              controller: _localIdController,
+              decoration: const InputDecoration(
+                hintText: 'Local Id',
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextFormField(
+              controller: _secretController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                hintText: 'secret',
+              ),
+            ),
+            const SizedBox(height: 10),
             ElevatedButton(
               child: const Text('Connect'),
-              onPressed: () => FlutterVpn.connectIkev2EAP(
+              onPressed: () => FlutterVpn.connectIkev2PSK(
                 server: _addressController.text,
-                username: _usernameController.text,
-                password: _passwordController.text,
+                remoteId: _remoteIdController.text,
+                localId: _localIdController.text,
+                secret: _secretController.text,
               ),
             ),
             ElevatedButton(

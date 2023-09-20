@@ -145,6 +145,70 @@ class VpnService {
         result(nil)
     }
 
+     @available(iOS 9.0, *)
+        func connectIkev2Psk(
+            result: FlutterResult,
+            type: String,
+            server: String,
+            remoteId: String,
+            localId: String,
+            secret: String,
+            description: String?
+        ) {
+            vpnManager.loadFromPreferences { (error) -> Void in
+                guard error == nil else {
+                    let msg = "VPN Preferences error: \(error!.localizedDescription)"
+                    debugPrint(msg)
+                    VPNStateHandler.updateState(FlutterVpnState.error.rawValue, errorMessage: msg)
+                    return;
+                }
+
+                
+                let secretKey = "vpn_\(type)_secret"
+                self.kcs.save(key: secretKey, value: secret)
+                
+                let p = NEVPNProtocolIKEv2()
+                
+                p.serverAddress = server
+                p.remoteIdentifier = remoteId
+                p.localIdentifier = localId
+
+                p.sharedSecretReference = self.kcs.load(key: secretKey)
+                p.authenticationMethod = NEVPNIKEAuthenticationMethod.sharedSecret
+                p.useExtendedAuthentication = false
+                p.disconnectOnSleep = false
+                
+                self.vpnManager.protocolConfiguration = p
+                
+                self.vpnManager.localizedDescription = description
+                self.vpnManager.isOnDemandEnabled = false
+                self.vpnManager.isEnabled = true
+
+                self.vpnManager.saveToPreferences(completionHandler: { (error) -> Void in
+                    guard error == nil else {
+                        let msg = "VPN Preferences error: \(error!.localizedDescription)"
+                        debugPrint(msg)
+                        VPNStateHandler.updateState(FlutterVpnState.error.rawValue, errorMessage: msg)
+                        return;
+                    }
+
+                    self.vpnManager.loadFromPreferences(completionHandler: { error in
+                        guard error == nil else {
+                            let msg = "VPN Preferences error: \(error!.localizedDescription)"
+                            debugPrint(msg)
+                            VPNStateHandler.updateState(FlutterVpnState.error.rawValue, errorMessage: msg)
+                            return;
+
+                        }
+
+                        self.configurationSaved = true
+                        self.startTunnel()
+                    })
+                })
+            }
+            result(nil)
+        }
+
     func startTunnel() {
         do {
             try self.vpnManager.connection.startVPNTunnel()

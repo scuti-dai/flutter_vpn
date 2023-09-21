@@ -77,6 +77,7 @@ class FlutterVpnPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             Service.BIND_AUTO_CREATE
         )
     }
+    
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
@@ -146,6 +147,29 @@ class FlutterVpnPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.success(4)
                 else
                     result.success(vpnStateService?.state?.ordinal)
+            }
+            "connect_psk" -> {
+                val intent = VpnService.prepare(activityBinding.activity.applicationContext)
+                if (intent != null) {
+                    // Not prepared yet.
+                    result.success(false)
+                    return
+                }
+
+                val args = call.arguments as Map<*, *>
+
+                val profileInfo = Bundle()
+                profileInfo.putString("VpnType", "ikev2-psk") 
+                profileInfo.putString("Name", args["Name"] as String)
+                profileInfo.putString("Server", args["Server"] as String)
+                profileInfo.putString("RemoteId", args["RemoteId"] as String)
+                profileInfo.putString("Password", args["Password"] as String)
+                profileInfo.putString("LocalId", args["LocalId"] as String)
+                if (args.containsKey("MTU"))  profileInfo.putInt("MTU", args["MTU"] as Int)
+                if (args.containsKey("port")) profileInfo.putInt("Port", args["Port"] as Int)
+
+                vpnStateService?.connect(profileInfo, true)
+                result.success(true)
             }
             "getCharonErrorState" -> result.success(vpnStateService?.errorState?.ordinal)
             "disconnect" -> vpnStateService?.disconnect()

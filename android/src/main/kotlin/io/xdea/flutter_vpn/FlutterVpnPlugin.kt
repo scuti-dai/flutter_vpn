@@ -22,6 +22,7 @@ import android.content.ServiceConnection
 import android.net.VpnService
 import android.os.Bundle
 import android.os.IBinder
+import android.util.Log
 import androidx.annotation.NonNull
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -37,6 +38,8 @@ import org.strongswan.android.logic.VpnStateService
 
 class FlutterVpnPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private lateinit var activityBinding: ActivityPluginBinding
+
+    private var TAG = "FlutterVpnPlugin";
 
     /// The MethodChannel that will the communication between Flutter and native Android
     ///
@@ -158,13 +161,15 @@ class FlutterVpnPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
                 val args = call.arguments as Map<*, *>
 
+                Log.d(TAG+ "onMethodCall: " , args.toString())
+
                 val profileInfo = Bundle()
                 profileInfo.putString("VpnType", "ikev2-psk") 
                 profileInfo.putString("Name", args["Name"] as String)
                 profileInfo.putString("Server", args["Server"] as String)
                 profileInfo.putString("RemoteId", args["RemoteId"] as String)
-                profileInfo.putString("Password", args["Password"] as String)
                 profileInfo.putString("LocalId", args["LocalId"] as String)
+                profileInfo.putString("Psk", args["Secret"] as String)
                 if (args.containsKey("MTU"))  profileInfo.putInt("MTU", args["MTU"] as Int)
                 if (args.containsKey("port")) profileInfo.putInt("Port", args["Port"] as Int)
 

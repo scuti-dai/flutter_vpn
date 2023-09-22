@@ -157,6 +157,7 @@ public class CharonVpnService extends VpnService implements Runnable, VpnStateSe
                     profile.setLocalId(bundle.getString("LocalId"));
                     profile.setRemoteId(bundle.getString("RemoteId"));
                     profile.setVpnType(VpnType.fromIdentifier(bundle.getString("VpnType")));
+                    profile.setPsk(bundle.getString("Psk"));
 
                     profile.setSelectedAppsHandling(SelectedAppsHandling.SELECTED_APPS_DISABLE);
                     profile.setFlags(0);
@@ -282,6 +283,7 @@ public class CharonVpnService extends VpnService implements Runnable, VpnStateSe
                             writer.setValue("connection.strict_revocation", (mCurrentProfile.getFlags() & VpnProfile.FLAGS_STRICT_REVOCATION) != 0);
                             writer.setValue("connection.ike_proposal", mCurrentProfile.getIkeProposal());
                             writer.setValue("connection.esp_proposal", mCurrentProfile.getEspProposal());
+                            writer.setValue("connection.psk", mCurrentProfile.getPsk());
                             initiate(writer.serialize());
                         } else {
                             Log.e(TAG, "failed to start charon");
